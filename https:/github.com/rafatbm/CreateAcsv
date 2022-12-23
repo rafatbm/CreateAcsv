@@ -1,0 +1,59 @@
+#!/usr/bin/awk -f
+
+BEGIN {FS=","}
+
+#Fem el filtre per les dones. Si el paràmetre d'entrada és "Women" filtrarem aquells valors on la columna pes i alçada no tinguin valors nuls, la columna sexe coincideixi amb el literal female i la columna 8 amb l'esport entrat com a parametre. Seguidament s'acumulen les sumes de pes i alçada per país, així com el número de dones per cada pais i el total de dones. Finalment es calculen els mínims i els màxims per pes i alçada.
+
+{if (sex=="Women"){
+{if ($7!=NULL && $6!=NULL && $4=="female" && $8==sport)
+{sumpesdones[$3]+=$6; sumalsadadones[$3]+=$7;medallesordones[$3]+=$9;medallesplatadones[$3]+=$10;totaldonespais[$3]+=1;totaldones++;
+if (maxalsadadones[$3]<$6){maxalsadadones[$3]=$6};
+if (maxpesdones[$3]<$7){maxpesdones[$3]=$7};
+if (minalsadadones[$3]>$6 || minalsadadones[$3]=="") {minalsadadones[$3]=$6}
+if (minpesdones[$3]>$7 || minpesdones[$3]=="") {minpesdones[$3]=$7}
+
+}
+}
+}
+}
+
+
+#Analogament per homes.
+
+{if (sex=="Men"){
+{if ($7!=NULL && $6!=NULL && $4=="male" && $8==sport)
+{sumpeshomes[$3]+=$6; sumalsadahomes[$3]+=$7;medallesorhomes[$3]+=$9;medallesplatahomes[$3]+=$10;totalhomespais[$3]+=1;totalhomes++;
+if (maxalsadahomes[$3]<$6){maxalsadahomes[$3]=$6};
+if (maxpeshomes[$3]<$7){maxpeshomes[$3]=$7};
+if (minalsadahomes[$3]>$6 || minalsadahomes[$3]=="") {minalsadahomes[$3]=$6}
+if (minpeshomes[$3]>$7 || minpesdones[$3]=="") {minpeshomes[$3]=$7}
+
+}
+}
+}
+}
+
+
+END{
+
+
+#Per la variable "Women" filtrem pel total de dones, si nno s'ha trobat cap aleshores salta el missatge "Sorry...". Si pel contrari el valor totaldones es major a 0 aleshores amb un bucle es calculen totes les dades que es demanen.
+
+if(sex=="Women"){
+	
+if (totaldones==0){print "Sorry, (sport=" sport ", sex=" sex ") not record founds"}
+else{print "Country, MaxH, MinH, AvgH, MaxW, MinW, AvgW, Gold, Silver";
+if (totaldones!=0){
+for(i in sumpesdones)
+printf "%s, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %d, %d \n", i, maxalsadadones[i], minalsadadones[i], sumpesdones[i]/totaldonespais[i], maxpesdones[i], minpesdones[i], sumalsadadones[i]/totaldonespais[i], medallesordones[i], medallesplatadones[i]
+}}}
+
+#Analogament per homes.
+if(sex=="Men"){
+	
+if (totalhomes==0){print "Sorry, (sport=" sport ", sex=" sex ") not record founds"}
+else{print "Country, MaxH, MinH, AvgH, MaxW, MinW, AvgW, Gold, Silver";
+if (totalhomes!=0){
+for(i in sumpeshomes)
+printf "%s, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %d, %d \n", i, maxalsadahomes[i], minalsadahomes[i], sumpeshomes[i]/totalhomespais[i], maxpeshomes[i], minpeshomes[i], sumalsadahomes[i]/totalhomespais[i], medallesorhomes[i], medallesplatahomes[i]
+}}}}
